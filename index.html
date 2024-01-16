@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务器状态</title>
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: url('https://img.morax.top/file/04230d1efc41656ac3942.jpg') center/cover no-repeat;
+        }
+
+        #statusContainer {
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        #serverStatus {
+            margin-top: 8px;
+        }
+
+        p {
+            margin: 0;
+            padding: 8px 0;
+        }
+
+        footer {
+            text-align: center;
+            color: #fff;
+        }
+
+        footer a {
+            color: #fff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div id="statusContainer">
+    <h1>Minecraft 服务器状态</h1>
+    <div id="serverStatus"></div>
+</div>
+
+<footer>
+    Powered by <a href="http://www.morax.top" target="_blank">Morax</a>
+</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // API URL
+        const apiUrl = 'https://api.mcstatus.io/v2/status/java/123.249.82.206:25565';
+    
+        // 获取数据
+        fetch(apiUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('网络响应异常');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // 检查服务器状态
+                if (data.online) {
+                    // 服务器在线，处理数据并显示在页面上
+                    displayServerStatus(data);
+                } else {
+                    // 服务器离线，显示相应信息
+                    displayServerOffline();
+                }
+            })
+            .catch(error => {
+                console.error('获取数据时发生错误:', error);
+            });
+    
+        // 显示服务器状态
+        function displayServerStatus(data) {
+            const serverStatusContainer = document.getElementById('serverStatus');
+    
+            // 在页面上创建元素并显示数据
+            const statusElement = document.createElement('p');
+            statusElement.textContent = `服务器状态: 在线`;
+    
+            const descriptionElement = document.createElement('p');
+            descriptionElement.textContent = `描述: ${data.motd.raw}`;
+    
+            const versionElement = document.createElement('p');
+            versionElement.textContent = `版本: ${data.version.name_raw}`;
+    
+            const playersElement = document.createElement('p');
+            const playersNameElement = document.createElement('p');
+            const onlinePlayers = data.players.online;
+            const maxPlayers = data.players.max;
+            const playerNames = data.players.list.map(player => player.name_raw).join(', ');
+    
+            playersElement.textContent = `当前在线人数: ${onlinePlayers}, 最大人数: ${maxPlayers}`;
+            playersNameElement.textContent += `在线玩家: ${playerNames || '无'}`;
+            serverStatusContainer.appendChild(statusElement);
+            serverStatusContainer.appendChild(descriptionElement);
+            serverStatusContainer.appendChild(versionElement);
+            serverStatusContainer.appendChild(playersElement);
+            serverStatusContainer.appendChild(playersNameElement);
+        }
+    
+        // 显示服务器离线状态
+        function displayServerOffline() {
+            const serverStatusContainer = document.getElementById('serverStatus');
+            const offlineElement = document.createElement('p');
+            offlineElement.textContent = `服务器当前离线`;
+            serverStatusContainer.appendChild(offlineElement);
+        }
+    });
+    </script>
+
+</body>
+</html>
